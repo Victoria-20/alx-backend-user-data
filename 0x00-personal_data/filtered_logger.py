@@ -3,6 +3,8 @@
 import logging
 import re
 from typing import List
+import os
+import mysql.connector
 
 
 def filter_datum(fields: List[str], redaction: str,
@@ -34,13 +36,14 @@ class RedactingFormatter(logging.Formatter):
         return filter_datum(self.fields, self.REDACTION, log, self.SEPARATOR)
 
 
+# Personally Identifiable Information
 PII_FIELDS = ('name', 'phone', 'ssn', 'password', 'ip')
 
 
 def get_logger() -> logging.Logger:
     """CReates Logger"""
     # initialize logger as user_data
-    logger = logging.Logger('user_data')
+    logger = logging.getLogger('user_data')
     # set logging level
     logger.setLevel(logging.INFO)
     logger.propagate = False
@@ -53,3 +56,22 @@ def get_logger() -> logging.Logger:
     logger.addHandler(stream_handler)
 
     return logger
+
+
+# Connect to secure database
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """Returns a connector to the database"""
+
+    name = os.getenv("PERSONAL_DATA_DB_NAME")
+    username = os.getenv("PERSONAL_DATA_DB_USERNAME")
+    password = os.getenv("PERSONAL_DATA_DB_PASSWORD")
+    host = os.getenv("PERSONAL_DATA_DB_HOST")
+
+    db = mysql.connector.connect(
+        database=name if name else 'my_db',
+        host=host if host else 'localhost',
+        user=username if username else 'root',
+        password=password if password else 'root'
+    )
+
+    return db
