@@ -41,9 +41,9 @@ PII_FIELDS = ('name', 'phone', 'ssn', 'password', 'ip')
 
 
 def get_logger() -> logging.Logger:
-    """CReates Logger"""
+    """Creates a Logger user_data"""
     # initialize logger as user_data
-    logger = logging.getLogger('user_data')
+    logger = logging.getLogger("user_data")
     # set logging level
     logger.setLevel(logging.INFO)
     logger.propagate = False
@@ -75,3 +75,32 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     )
 
     return db
+
+
+def main():
+    """
+    obtains a database connection using get_db
+    and retrieve all rows in the users table
+    and display each row under a filtered format. """
+
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('SELECT * FROM users;')
+    rows = cursor.fetchall()
+
+    logger = get_logger()
+    field_names = [i[0] for i in cursor.description]
+
+    for row in rows:
+        message = ''
+        for field in range(len(row)):
+            message += f'{field_names[field]}={row[field]};'
+        logger.info(message)
+
+    cursor.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
