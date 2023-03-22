@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """ SQLAlchemy model"""
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
 
 Base = declarative_base()
 
 
 class User(Base):
-    """ Model user connecting to database `user`"""
+    """
+        User class to define a 'user' table
+    """
     __tablename__ = 'users'
 
+    # column names
     id = Column(Integer, primary_key=True)
     email = Column(String(250), nullable=False)
     hashed_password = Column(String(250), nullable=False)
