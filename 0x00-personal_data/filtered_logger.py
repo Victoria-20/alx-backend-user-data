@@ -49,11 +49,10 @@ def get_logger() -> logging.Logger:
     logger.propagate = False
 
     # set stream handler to display message
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
-
-    # add stream to logger user_data
-    logger.addHandler(stream_handler)
+    handler = logging.StreamHandler()  # set the handler
+    formatter = RedactingFormatter(PII_FIELDS)  # set the formatter
+    handler.setFormatter(formatter)  # add the formatter to the handler
+    logger.addHandler(handler)  # add the handler to the logger object
 
     return logger
 
