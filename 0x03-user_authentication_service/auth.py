@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
-""" 4. Hash password"""
+"""User authentication"""
+from typing import Union
+import uuid
 import bcrypt
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
-import uuid
 
 
 def _hash_password(password: str) -> bytes:
-    """returns a salted, hashed password, which is a byte string"""
-
-    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    return hashed
+    """
+        hash the password using
+    """
+    # convert the password str into bytes
+    bytes = password.encode('utf-8')
+    # generate the salt
+    salt = bcrypt.gensalt()
+    # generte the hashed pwd
+    hash = bcrypt.hashpw(bytes, salt)
+    # return the pwd
+    return hash
 
 
 def _generate_uuid() -> str:
@@ -30,15 +38,24 @@ class Auth:
         self._db = DB()
 
     def register_user(self, email: str, password: str) -> User:
-        """register the user and return user object"""
+        """
+            if the user is not in the database
+            register the user and return the user object
+        """
         try:
+            # Try to find the user with the given email
             self._db.find_user_by(email=email)
 
+            # is the user already registered, raise a ValueError
             raise ValueError(f"User {email} already exists")
         except NoResultFound:
-            hashed = _hash_password(password)
-            new_user = self._db.add_user(email, hashed)
+            # if the user is not registered, hash the password
+            hashed_pwd = _hash_password(password)
 
+            # then create a new user with the given email and hashed pwd
+            new_user = self._db.add_user(email, hashed_pwd)
+
+            # return the new user
             return new_user
 
     def valid_login(self, email: str, password: str) -> bool:
